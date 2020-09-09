@@ -1,0 +1,13 @@
+# deploy example pod
+k create -f examples/pod-with-defaults.yaml
+
+
+kubectl delete mutatingwebhookconfigurations demo-webhook
+
+# build & deploy
+make
+docker build -t gilcredo/my-admission-controller-webhook image/
+docker push gilcredo/my-admission-controller-webhook
+./deploy.sh
+
+kubectl get pod test96-0 -n anonymous -o json | jq '.status.containerStatuses[] | {state:(.state | keys[0]),ready:.ready}'
